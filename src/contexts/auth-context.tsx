@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function getPostAuthPath(user: UserResponse): string {
   if (user.super_admin) {
-    return "/join-organization";
+    return "/organizations";
   }
 
   if (!user.organization_id) {

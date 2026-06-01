@@ -56,6 +56,12 @@ function JoinOrganizationForm() {
   }, [searchParams, setValue]);
 
   useEffect(() => {
+    if (!isLoading && user?.super_admin) {
+      router.replace("/organizations");
+    }
+  }, [isLoading, router, user?.super_admin]);
+
+  useEffect(() => {
     if (!isLoading && user?.organization_id) {
       router.replace("/query");
     }
@@ -83,22 +89,8 @@ function JoinOrganizationForm() {
     }
   });
 
-  if (isLoading) {
+  if (isLoading || user?.super_admin) {
     return <p className="text-sm text-muted-foreground">Loading…</p>;
-  }
-
-  if (user?.super_admin) {
-    return (
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Admin account</CardTitle>
-          <CardDescription>
-            Super admin accounts cannot join an organization from this screen.
-            Use the backend admin tools to manage organizations and users.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
   }
 
   return (

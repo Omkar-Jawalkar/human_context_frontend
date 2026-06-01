@@ -21,6 +21,20 @@ export type OrganizationResponse = {
   updated_at: string;
 };
 
+export type OrganizationListResponse = {
+  items: OrganizationResponse[];
+};
+
+export type OrganizationCreateInput = {
+  name: string;
+  meta?: Record<string, unknown>;
+};
+
+export type OrganizationUpdateInput = {
+  name?: string;
+  meta?: Record<string, unknown>;
+};
+
 export type ImportJobStatus =
   | "pending"
   | "processing"

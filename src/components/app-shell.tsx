@@ -8,15 +8,24 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const tenantNavItems = [
   { href: "/query", label: "Query" },
   { href: "/imports", label: "Imports" },
 ];
+
+const adminNavItems = [{ href: "/organizations", label: "Organizations" }];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const hasOrganization = Boolean(user?.organization_id);
+  const isSuperAdmin = Boolean(user?.super_admin);
+
+  const navItems = isSuperAdmin
+    ? adminNavItems
+    : hasOrganization
+      ? tenantNavItems
+      : [];
 
   return (
     <div className="min-h-full bg-background">
@@ -26,7 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link href="/" className="font-semibold tracking-tight">
               Human Context
             </Link>
-            {hasOrganization ? (
+            {navItems.length > 0 ? (
               <nav className="flex items-center gap-1">
                 {navItems.map((item) => (
                   <Link

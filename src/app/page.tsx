@@ -25,7 +25,7 @@ export default function HomePage() {
     }
 
     if (user?.super_admin) {
-      router.replace("/join-organization");
+      router.replace("/organizations");
       return;
     }
 

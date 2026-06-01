@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app-shell";
 import { useAuth } from "@/contexts/auth-context";
 
 const ORG_REQUIRED_PATHS = ["/imports", "/query"];
+const SUPER_ADMIN_ONLY_PATHS = ["/organizations"];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -14,7 +15,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, token } = useAuth();
 
   useEffect(() => {
-    if (isLoading || !token) {
+    if (isLoading || !token || !user) {
+      return;
+    }
+
+    const isSuperAdminOnly = SUPER_ADMIN_ONLY_PATHS.some(
+      (path) => pathname === path || pathname.startsWith(`${path}/`),
+    );
+
+    if (isSuperAdminOnly && !user.super_admin) {
+      router.replace(user.organization_id ? "/query" : "/join-organization");
       return;
     }
 
@@ -22,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       (path) => pathname === path || pathname.startsWith(`${path}/`),
     );
 
-    if (requiresOrganization && user && !user.organization_id) {
+    if (requiresOrganization && !user.organization_id) {
       router.replace("/join-organization");
     }
   }, [isLoading, pathname, router, token, user]);
