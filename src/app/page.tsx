@@ -29,7 +29,7 @@ export default function HomePage() {
       return;
     }
 
-    router.replace("/query");
+    router.replace("/users");
   }, [isLoading, router, token, user]);
 
   return (

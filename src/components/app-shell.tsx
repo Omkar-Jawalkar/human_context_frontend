@@ -9,11 +9,23 @@ import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
 const tenantNavItems = [
-  { href: "/query", label: "Query" },
+  { href: "/users", label: "Users" },
   { href: "/imports", label: "Imports" },
 ];
 
 const adminNavItems = [{ href: "/organizations", label: "Organizations" }];
+
+function isNavActive(pathname: string, href: string): boolean {
+  if (pathname === href) {
+    return true;
+  }
+
+  if (href === "/users" && pathname.endsWith("/query")) {
+    return true;
+  }
+
+  return false;
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     className={cn(
                       "rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted",
-                      pathname === item.href && "bg-muted font-medium",
+                      isNavActive(pathname, item.href) && "bg-muted font-medium",
                     )}
                   >
                     {item.label}

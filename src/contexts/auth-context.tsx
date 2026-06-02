@@ -42,7 +42,7 @@ function getPostAuthPath(user: UserResponse): string {
     return "/join-organization";
   }
 
-  return "/query";
+  return "/users";
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

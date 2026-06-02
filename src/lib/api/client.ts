@@ -12,6 +12,21 @@ export function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
+export function buildQueryString(
+  params: Record<string, string | number | boolean | undefined>,
+): string {
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
+}
+
 type ApiFetchOptions = Omit<RequestInit, "body"> & {
   token?: string | null;
   body?: BodyInit | Record<string, unknown> | null;

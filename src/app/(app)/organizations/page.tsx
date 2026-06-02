@@ -73,7 +73,7 @@ export default function OrganizationsPage() {
 
   useEffect(() => {
     if (!isLoading && user && !user.super_admin) {
-      router.replace(user.organization_id ? "/query" : "/join-organization");
+      router.replace(user.organization_id ? "/users" : "/join-organization");
     }
   }, [isLoading, router, user]);
 

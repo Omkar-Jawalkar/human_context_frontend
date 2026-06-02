@@ -1,6 +1,7 @@
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch, buildQueryString } from "@/lib/api/client";
 import type {
   OrganizationCreateInput,
+  OrganizationListFilters,
   OrganizationListResponse,
   OrganizationResponse,
   OrganizationUpdateInput,
@@ -8,8 +9,10 @@ import type {
 
 export function listOrganizations(
   token: string,
+  filters: OrganizationListFilters = {},
 ): Promise<OrganizationListResponse> {
-  return apiFetch<OrganizationListResponse>("/organizations", { token });
+  const query = buildQueryString(filters);
+  return apiFetch<OrganizationListResponse>(`/organizations${query}`, { token });
 }
 
 export function createOrganization(

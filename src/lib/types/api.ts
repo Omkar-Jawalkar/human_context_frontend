@@ -21,8 +21,32 @@ export type OrganizationResponse = {
   updated_at: string;
 };
 
-export type OrganizationListResponse = {
-  items: OrganizationResponse[];
+export type PaginatedResponse<T> = {
+  items: T[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+};
+
+export type OrganizationListResponse = PaginatedResponse<OrganizationResponse>;
+
+export type OrganizationListFilters = {
+  name?: string;
+  created_after?: string;
+  created_before?: string;
+  page?: number;
+  page_size?: number;
+};
+
+export type UserListResponse = PaginatedResponse<UserResponse>;
+
+export type UserListFilters = {
+  organization_id?: string;
+  unassigned_only?: boolean;
+  email?: string;
+  page?: number;
+  page_size?: number;
 };
 
 export type OrganizationCreateInput = {
