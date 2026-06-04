@@ -10,7 +10,7 @@ Every generated interface should feel **modern, minimal, and production-ready** 
 ### Core Principles
 
 1. **Restraint over decoration.** Fewer elements, highly refined. White space is a feature.
-2. **Typography carries hierarchy.** Pair a distinctive display font with a clean body font. Maximize weight contrast between headings and labels.
+2. **Typography carries hierarchy.** Use **Ubuntu** (Google Fonts, `next/font/google`) for UI and headings; **Ubuntu Mono** for code/IDs. Maximize weight contrast (300–400 body, 500–700 headings) — do not add Inter, Roboto, or Geist.
 3. **One strong color moment.** Neutral palette first (warm off-whites, near-blacks, muted mid-tones). Introduce one confident accent. If it could appear on a poster or book cover, it's probably timeless.
 4. **Spacing is structure.** Use an 8 px grid. Tighter gaps group related elements; generous gaps let hero content breathe.
 5. **Accessibility is non-negotiable.** WCAG AA contrast minimums. Focus indicators. Semantic HTML. Keyboard navigation.
@@ -23,6 +23,31 @@ The output should match what you'd expect from a senior product designer at a to
 - Obvious interactive affordances (hover, focus, active states)
 - Graceful edge cases (empty states, loading, error)
 - Responsive without breakpoint artifacts
+
+## Design tokens & Tailwind
+
+**Read before writing styles:** [`tailwind.config.ts`](../../../tailwind.config.ts) (canonical color combinations) and [`design-tokens.md`](design-tokens.md) (quick reference).
+
+- Token CSS: `src/design-system/tokens.css` · Theme utilities: `src/design-system/theme.css` · Wired via `src/app/globals.css` + `@config`
+- Use **semantic classes only** (`bg-background`, `text-brand`, `border-border`) — never hex/oklch in JSX
+- Pick a preset from `colorCombinations` in `tailwind.config.ts` for each surface (page, card, actions, status)
+- **Brand** (`brand`, `brand-foreground`) = one accent moment; **primary** = neutral actions (buttons)
+- 8px spacing grid: `gap-2` · `gap-4` · `gap-6` · card padding `p-4` (16px)
+
+## Typography (Ubuntu)
+
+**Loaded in** `src/app/layout.tsx` via `next/font/google` — never import fonts in individual pages.
+
+| Role | Font | Tailwind | Weights |
+| ---- | ---- | -------- | ------- |
+| Body, labels, buttons | Ubuntu | `font-sans` | 300, 400, 500 |
+| Headings, card titles | Ubuntu | `font-heading` | 500, 700 |
+| Code, IDs | Ubuntu Mono | `font-mono` | 400, 700 |
+
+- Presets: `typography` and `fonts` in [`tailwind.config.ts`](../../../tailwind.config.ts)
+- Details: [design-tokens.md](design-tokens.md#typography-ubuntu)
+- Headings: `font-heading` + `font-semibold` or `font-bold` + `tracking-tight`
+- Do not load additional Google Fonts in components
 
 ## Components
 
@@ -67,7 +92,8 @@ For each component in the interface, follow its best practices from [components.
 - Toggles: immediate effect only — use checkboxes in forms that require Save
 
 **Typography & Spacing**
-- Strict heading hierarchy (h1 → h2 → h3), one h1 per page
+- **Ubuntu only** — `font-sans` for body, `font-heading` for titles, `font-mono` for code
+- Strict heading hierarchy (h1 → h2 → h3), one h1 per page; bolder weights on headings
 - Minimum 44 px touch targets on mobile
 - Labels above inputs (vertical forms) or beside (horizontal)
 - Placeholder text as format hint, never as label replacement
@@ -112,10 +138,10 @@ Select the style preset that best matches the user's intent, or ask if unclear:
 Write production-ready code following these rules:
 
 ```
-Stack:       React + Tailwind CSS (unless user specifies otherwise)
-Spacing:     Tailwind spacing scale (p-2, gap-4, etc.) on an 8px grid
-Colors:      Tailwind config for palette consistency
-Typography:  Tailwind text utilities; expressive font pairings via Google Fonts
+Stack:       React + Tailwind CSS v4 (@config tailwind.config.ts)
+Tokens:      src/design-system/tokens.css + colorCombinations in tailwind.config.ts
+Spacing:     spacingScale in tailwind.config.ts — 8px grid (p-2, gap-4, gap-6)
+Typography:  Ubuntu + Ubuntu Mono via src/app/layout.tsx; presets in tailwind.config.ts
 States:      Implement hover, focus, active, disabled for all interactive elements
 Responsive:  Mobile-first; test at 375, 768, 1440 px
 Accessibility: Semantic HTML, ARIA where needed, focus management

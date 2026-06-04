@@ -4,6 +4,10 @@ Full reference for the design system components in `src/components/ui/`.
 
 **Stack:** Base UI primitives · class-variance-authority variants · Tailwind design tokens · lucide-react icons · sonner toasts
 
+**Tokens:** See [design-tokens.md](design-tokens.md) and [`tailwind.config.ts`](../../../tailwind.config.ts) (`colorCombinations`).
+
+**Fonts:** Ubuntu / Ubuntu Mono via `src/app/layout.tsx` — use `font-sans`, `font-heading`, `font-mono` only.
+
 ---
 
 ## Inventory

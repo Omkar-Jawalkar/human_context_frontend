@@ -44,7 +44,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="border-b">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link href="/" className="font-semibold tracking-tight">
+            <Link
+              href="/"
+              className="font-heading text-base font-bold tracking-tight"
+            >
               Human Context
             </Link>
             {navItems.length > 0 ? (

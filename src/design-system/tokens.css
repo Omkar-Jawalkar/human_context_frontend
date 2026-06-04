@@ -1,0 +1,110 @@
+/**
+ * Human Context design tokens (CSS custom properties).
+ * Consumed by src/design-system/theme.css and src/app/globals.css.
+ * Documented pairings: tailwind.config.ts → colorCombinations
+ */
+
+:root {
+  /* Surfaces */
+  --background: oklch(0.99 0.004 85);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Brand accent — one strong color moment (warm terracotta) */
+  --brand: oklch(0.52 0.14 42);
+  --brand-foreground: oklch(0.99 0.004 85);
+
+  /* Actions */
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0.006 85);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.965 0.006 85);
+  --muted-foreground: oklch(0.5 0.01 85);
+  --accent: oklch(0.96 0.02 42);
+  --accent-foreground: oklch(0.28 0.04 42);
+
+  /* Feedback */
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.48 0.12 155);
+  --success-foreground: oklch(0.99 0.004 85);
+  --warning: oklch(0.62 0.14 75);
+  --warning-foreground: oklch(0.2 0.02 75);
+  --info: oklch(0.5 0.08 240);
+  --info-foreground: oklch(0.99 0.004 85);
+
+  /* Chrome */
+  --border: oklch(0.91 0.006 85);
+  --input: oklch(0.91 0.006 85);
+  --ring: oklch(0.52 0.14 42);
+
+  /* Charts (neutral ramp) */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+
+  --radius: 0.5rem;
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0.004 85);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0.006 85);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.91 0.006 85);
+  --sidebar-ring: oklch(0.52 0.14 42);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  --brand: oklch(0.72 0.12 48);
+  --brand-foreground: oklch(0.18 0.02 48);
+
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.32 0.06 42);
+  --accent-foreground: oklch(0.92 0.04 48);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.72 0.14 155);
+  --success-foreground: oklch(0.15 0.03 155);
+  --warning: oklch(0.78 0.12 85);
+  --warning-foreground: oklch(0.22 0.04 85);
+  --info: oklch(0.68 0.1 240);
+  --info-foreground: oklch(0.15 0.04 240);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.72 0.12 48);
+
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.72 0.12 48);
+  --sidebar-primary-foreground: oklch(0.18 0.02 48);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.12 48);
+}
