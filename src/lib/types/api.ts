@@ -113,6 +113,8 @@ export type QueryResponse = {
 export type ApiErrorBody = {
   detail?: string | { msg: string; type?: string; loc?: (string | number)[] }[];
   code?: string;
+  retry_after_seconds?: number;
+  retry_at?: string;
 };
 
 export type ValidationErrorItem = {

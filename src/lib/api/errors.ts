@@ -16,9 +16,17 @@ export function getApiErrorMessage(
   return fallback;
 }
 
+export type ChatRateLimitInfo = {
+  message: string;
+  retryAt: Date;
+  retryAfterSeconds: number;
+};
+
 export class ApiError extends Error {
   status: number;
   code?: string;
+  retryAfterSeconds?: number;
+  retryAt?: string;
   validationErrors?: ValidationErrorItem[];
 
   constructor(
@@ -26,13 +34,47 @@ export class ApiError extends Error {
     status: number,
     code?: string,
     validationErrors?: ValidationErrorItem[],
+    retryAfterSeconds?: number,
+    retryAt?: string,
   ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.retryAfterSeconds = retryAfterSeconds;
+    this.retryAt = retryAt;
     this.validationErrors = validationErrors;
   }
+}
+
+export function getChatRateLimitInfo(error: unknown): ChatRateLimitInfo | null {
+  if (!(error instanceof ApiError)) {
+    return null;
+  }
+
+  if (error.status !== 429 || error.code !== "rate_limit_error") {
+    return null;
+  }
+
+  const retryAt = error.retryAt
+    ? new Date(error.retryAt)
+    : error.retryAfterSeconds != null
+      ? new Date(Date.now() + error.retryAfterSeconds * 1000)
+      : null;
+
+  if (!retryAt || Number.isNaN(retryAt.getTime())) {
+    return null;
+  }
+
+  const retryAfterSeconds =
+    error.retryAfterSeconds ??
+    Math.max(0, Math.ceil((retryAt.getTime() - Date.now()) / 1000));
+
+  return {
+    message: error.message,
+    retryAt,
+    retryAfterSeconds,
+  };
 }
 
 function formatValidationErrors(detail: ApiErrorBody["detail"]): string {
@@ -64,6 +106,8 @@ export async function parseApiError(response: Response): Promise<ApiError> {
       response.status,
       body.code,
       validationErrors,
+      body.retry_after_seconds,
+      body.retry_at,
     );
   }
 
@@ -72,5 +116,12 @@ export async function parseApiError(response: Response): Promise<ApiError> {
       ? body.detail
       : response.statusText || "Request failed";
 
-  return new ApiError(message, response.status, body.code);
+  return new ApiError(
+    message,
+    response.status,
+    body.code,
+    undefined,
+    body.retry_after_seconds,
+    body.retry_at,
+  );
 }

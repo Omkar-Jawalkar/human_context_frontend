@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { ChatMessageList } from "@/components/chat/chat-message-list";
 import { ChatPromptInput } from "@/components/chat/chat-prompt-input";
+import { ChatRateLimitNotice } from "@/components/chat/chat-rate-limit-notice";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { updateThread } from "@/lib/api/chats";
-import { getApiErrorMessage } from "@/lib/api/errors";
+import { getApiErrorMessage, getChatRateLimitInfo } from "@/lib/api/errors";
 import { getFirstName, getTimeOfDayGreeting, formatBrainChatLabel } from "@/lib/chat/greeting";
 import { getStreamingMessageIds, markMessageForStreaming } from "@/lib/chat/streaming-message-ids";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,10 @@ export function ChatView({
     () => getStreamingMessageIds(),
   );
   const [isDeleting, setIsDeleting] = useState(false);
+  const [rateLimit, setRateLimit] = useState<{
+    message: string;
+    retryAt: number;
+  } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const firstName = getFirstName(user.name);
@@ -93,6 +98,7 @@ export function ChatView({
   const displayContextName = activeThreadId ? contextUserName : selectedContextName;
   const isOwnBrain = effectiveContextUserId === user.id;
   const brainChatLabel = formatBrainChatLabel(displayContextName, isOwnBrain);
+  const isChatDisabled = Boolean(rateLimit);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -100,6 +106,24 @@ export function ChatView({
       behavior: "smooth",
     });
   }, [messages, isSending]);
+
+  useEffect(() => {
+    if (!rateLimit) {
+      return;
+    }
+
+    const remainingMs = rateLimit.retryAt - Date.now();
+    if (remainingMs <= 0) {
+      setRateLimit(null);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setRateLimit(null);
+    }, remainingMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [rateLimit]);
 
   const handleToggleHistory = async () => {
     if (!activeThreadId) {
@@ -122,7 +146,7 @@ export function ChatView({
 
   const handleSend = async () => {
     const trimmed = draft.trim();
-    if (!trimmed || isSending) {
+    if (!trimmed || isSending || rateLimit) {
       return;
     }
 
@@ -168,7 +192,16 @@ export function ChatView({
         current.filter((message) => message.id !== optimisticUser.id),
       );
       setDraft(trimmed);
-      toast.error(getApiErrorMessage(error, "Failed to send message."));
+
+      const rateLimitInfo = getChatRateLimitInfo(error);
+      if (rateLimitInfo) {
+        setRateLimit({
+          message: rateLimitInfo.message,
+          retryAt: rateLimitInfo.retryAt.getTime(),
+        });
+      } else {
+        toast.error(getApiErrorMessage(error, "Failed to send message."));
+      }
     } finally {
       setIsSending(false);
     }
@@ -181,7 +214,7 @@ export function ChatView({
         value={selectedContextUserId}
         onChange={(event) => setSelectedContextUserId(event.target.value)}
         className="max-w-[12rem] truncate rounded-md border-0 bg-transparent py-0 pl-0 text-xs text-foreground outline-none"
-        disabled={isSending}
+        disabled={isSending || isChatDisabled}
       >
         {orgMembers.map((member) => (
           <option key={member.id} value={member.id}>
@@ -275,11 +308,17 @@ export function ChatView({
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">{brainChatLabel}</p>
             <div className="mt-10 w-full max-w-2xl">
+              {rateLimit ? (
+                <ChatRateLimitNotice
+                  message={rateLimit.message}
+                  retryAt={rateLimit.retryAt}
+                />
+              ) : null}
               <ChatPromptInput
                 value={draft}
                 onChange={setDraft}
                 onSubmit={() => void handleSend()}
-                disabled={false}
+                disabled={isChatDisabled}
                 isSending={isSending}
                 footer={contextFooter}
               />
@@ -300,12 +339,18 @@ export function ChatView({
       {hasMessages ? (
         <div className="shrink-0 border-t border-border/60 bg-background px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
+            {rateLimit ? (
+              <ChatRateLimitNotice
+                message={rateLimit.message}
+                retryAt={rateLimit.retryAt}
+              />
+            ) : null}
             <ChatPromptInput
               value={draft}
               onChange={setDraft}
               onSubmit={() => void handleSend()}
               placeholder="Reply…"
-              disabled={false}
+              disabled={isChatDisabled}
               isSending={isSending}
               footer={contextFooter}
             />
