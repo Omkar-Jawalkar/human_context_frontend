@@ -1,21 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Search, Users } from "lucide-react";
+import { ArrowRight, MessageSquare, Search, Users } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { UserResponse } from "@/lib/types/api";
 
 type UserListProps = {
   users: UserResponse[];
+  currentUserId?: string;
   hasActiveFilter?: boolean;
 };
 
@@ -42,18 +40,18 @@ export function UserListSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <Card className="overflow-hidden p-0 ring-1 ring-foreground/10">
       <div
-        className="hidden border-b border-border bg-muted/30 px-4 py-2.5 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_10.5rem] sm:gap-4"
+        className="hidden border-b border-border bg-muted/30 px-4 py-2.5 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_13rem] sm:gap-4"
         aria-hidden
       >
         <span>Member</span>
         <span className="text-right">Joined</span>
-        <span className="sr-only">Action</span>
+        <span className="sr-only">Actions</span>
       </div>
       <ul className="divide-y divide-border" aria-hidden>
         {Array.from({ length: rows }).map((_, index) => (
           <li
             key={index}
-            className="flex items-center gap-4 px-4 py-4 sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_10.5rem] sm:gap-4"
+            className="flex items-center gap-4 px-4 py-4 sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_13rem] sm:gap-4"
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="size-10 shrink-0 animate-pulse rounded-full bg-muted" />
@@ -87,20 +85,54 @@ function UserListEmpty({ hasActiveFilter }: { hasActiveFilter: boolean }) {
         </h2>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
           {hasActiveFilter
-            ? "Try a different email or clear the search to see everyone in your organization."
-            : "Members appear here once they join your organization."}
+            ? "Try a different email or clear the search."
+            : "Members appear here once they join."}
         </p>
       </CardContent>
     </Card>
   );
 }
 
-function UserRow({ member }: { member: UserResponse }) {
-  const queryHref = `/${member.id}/query`;
+function MemberActions({ memberId }: { memberId: string }) {
+  const queryHref = `/${memberId}/query`;
+  const chatHref = `/chats/new?contextUserId=${memberId}`;
 
   return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+      <Link
+        href={queryHref}
+        className={cn(
+          buttonVariants({ variant: "outline", size: "sm" }),
+          "h-9 min-w-[5.5rem] gap-1.5",
+        )}
+      >
+        <Search className="size-3.5" aria-hidden />
+        Query
+      </Link>
+      <Link
+        href={chatHref}
+        className={cn(
+          buttonVariants({ size: "sm" }),
+          "h-9 min-w-[5.5rem] gap-1.5",
+        )}
+      >
+        <MessageSquare className="size-3.5" aria-hidden />
+        Chat
+      </Link>
+    </div>
+  );
+}
+
+function UserRow({
+  member,
+  isCurrentUser,
+}: {
+  member: UserResponse;
+  isCurrentUser: boolean;
+}) {
+  return (
     <li>
-      <div className="group flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40 sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_10.5rem] sm:items-center sm:gap-4">
+      <div className="group flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/40 sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_13rem] sm:items-center sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div
             className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-medium text-accent-foreground"
@@ -109,7 +141,14 @@ function UserRow({ member }: { member: UserResponse }) {
             {getInitials(member.name)}
           </div>
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{member.name}</p>
+            <p className="truncate font-medium text-foreground">
+              {member.name}
+              {isCurrentUser ? (
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                  (you)
+                </span>
+              ) : null}
+            </p>
             <p className="truncate text-sm text-muted-foreground">
               {member.email}
             </p>
@@ -122,49 +161,31 @@ function UserRow({ member }: { member: UserResponse }) {
           {formatDate(member.created_at)}
         </p>
         <div className="ml-auto shrink-0 sm:ml-0">
-          <Link
-            href={queryHref}
-            className={cn(
-              buttonVariants({ size: "sm" }),
-              "h-9 min-w-[10.5rem] gap-1.5",
-            )}
-          >
-            Query conversations
-            <ArrowRight
-              className="size-3.5 opacity-70 transition-transform group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
+          <MemberActions memberId={member.id} />
         </div>
       </div>
     </li>
   );
 }
 
-export function UserList({ users, hasActiveFilter = false }: UserListProps) {
+export function UserList({
+  users,
+  currentUserId,
+  hasActiveFilter = false,
+}: UserListProps) {
   if (users.length === 0) {
     return <UserListEmpty hasActiveFilter={hasActiveFilter} />;
   }
 
   return (
     <Card className="overflow-hidden p-0 ring-1 ring-foreground/10">
-      <CardHeader className="border-b border-border bg-muted/30 px-4 py-3">
-        <CardTitle className="text-sm font-medium">Organization members</CardTitle>
-        <CardDescription className="text-xs">
-          Open semantic search against each member&apos;s imported conversations.
-        </CardDescription>
-      </CardHeader>
-      <div
-        className="hidden border-b border-border px-4 py-2.5 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:grid sm:grid-cols-[minmax(0,1fr)_7rem_10.5rem] sm:gap-4"
-        aria-hidden
-      >
-        <span>Member</span>
-        <span className="text-right">Joined</span>
-        <span className="text-right">Action</span>
-      </div>
       <ul className="divide-y divide-border">
         {users.map((member) => (
-          <UserRow key={member.id} member={member} />
+          <UserRow
+            key={member.id}
+            member={member}
+            isCurrentUser={member.id === currentUserId}
+          />
         ))}
       </ul>
     </Card>

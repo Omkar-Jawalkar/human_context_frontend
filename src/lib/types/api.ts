@@ -120,3 +120,45 @@ export type ValidationErrorItem = {
   type?: string;
   loc?: (string | number)[];
 };
+
+export type ChatMessage = {
+  id: string;
+  thread_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sequence: number;
+  sources: QuerySource[] | null;
+  created_at: string;
+};
+
+export type ChatThread = {
+  id: string;
+  user_id: string;
+  context_user_id: string;
+  organization_id: string | null;
+  title: string;
+  use_thread_history: boolean;
+  created_at: string;
+  updated_at: string;
+  messages: ChatMessage[];
+};
+
+export type ChatThreadListResponse = {
+  threads: ChatThread[];
+};
+
+export type SendMessageResponse = {
+  user_message: ChatMessage;
+  assistant_message: ChatMessage;
+};
+
+export type CreateChatInput = {
+  title?: string;
+  context_user_id: string;
+  use_thread_history: boolean;
+};
+
+export type UpdateChatInput = {
+  title?: string;
+  use_thread_history?: boolean;
+};

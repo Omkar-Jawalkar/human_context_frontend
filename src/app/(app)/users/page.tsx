@@ -6,19 +6,12 @@ import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 
 import { UserList, UserListSkeleton } from "@/components/user-list";
 import { ApiError } from "@/lib/api/client";
+import { listOrganizations } from "@/lib/api/organizations";
 import { listUsers } from "@/lib/api/users";
 import { useRequireAuth } from "@/contexts/auth-context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { UserResponse } from "@/lib/types/api";
 
 const PAGE_SIZE = 20;
@@ -27,6 +20,7 @@ export default function UsersPage() {
   const router = useRouter();
   const { user, token, isLoading } = useRequireAuth();
   const [users, setUsers] = useState<UserResponse[]>([]);
+  const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -40,6 +34,34 @@ export default function UsersPage() {
       router.replace("/join-organization");
     }
   }, [isLoading, router, user]);
+
+  useEffect(() => {
+    if (!token || !user?.organization_id) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchOrganizationName = async () => {
+      try {
+        const response = await listOrganizations(token, { page_size: 100 });
+        const org = response.items.find((item) => item.id === user.organization_id);
+        if (!cancelled) {
+          setOrganizationName(org?.name ?? null);
+        }
+      } catch {
+        if (!cancelled) {
+          setOrganizationName(null);
+        }
+      }
+    };
+
+    void fetchOrganizationName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, user]);
 
   useEffect(() => {
     if (!token || !user?.organization_id) {
@@ -106,7 +128,7 @@ export default function UsersPage() {
       <div className="space-y-6">
         <div className="space-y-2">
           <div className="h-7 w-24 animate-pulse rounded-md bg-muted" />
-          <div className="h-4 w-72 max-w-full animate-pulse rounded-md bg-muted" />
+          <div className="h-4 w-40 animate-pulse rounded-md bg-muted" />
         </div>
         <UserListSkeleton rows={4} />
       </div>
@@ -117,69 +139,57 @@ export default function UsersPage() {
     return null;
   }
 
-  const showingFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const showingTo = Math.min(page * PAGE_SIZE, total);
   const hasActiveFilter = Boolean(emailFilter);
+  const memberLabel =
+    total === 1 ? "1 member" : `${total} members`;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight">Users</h1>
-        <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
-          Choose a member to run semantic search over their imported Claude
-          conversations.
-        </p>
-      </header>
+    <div className="space-y-6">
+      <header className="space-y-3">
+        <div>
+          <h1 className="font-heading text-xl font-semibold tracking-tight">
+            Users
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {organizationName ?? "Your organization"}
+            {!listLoading ? ` · ${memberLabel}` : null}
+          </p>
+        </div>
 
-      <Card className="ring-1 ring-foreground/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Find a member</CardTitle>
-          <CardDescription>
-            Filter by email address within your organization.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleSearch}
-            className="flex flex-col gap-4 sm:flex-row sm:items-end"
-          >
-            <div className="min-w-0 flex-1 space-y-2">
-              <Label htmlFor="emailFilter">Email</Label>
-              <div className="relative">
-                <Search
-                  className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden
-                />
-                <Input
-                  id="emailFilter"
-                  type="search"
-                  placeholder="name@company.com"
-                  className="h-10 pl-9"
-                  value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Button type="submit" className="h-10 min-w-24">
-                Search
-              </Button>
-              {hasActiveFilter ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-10 gap-1.5"
-                  onClick={handleClearSearch}
-                  disabled={listLoading}
-                >
-                  <X className="size-4" aria-hidden />
-                  Clear
-                </Button>
-              ) : null}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+        <form onSubmit={handleSearch} className="flex max-w-md gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="emailFilter"
+              type="search"
+              placeholder="Search by email"
+              className="h-9 pl-9"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          {hasActiveFilter ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0"
+              onClick={handleClearSearch}
+              disabled={listLoading}
+              aria-label="Clear search"
+            >
+              <X className="size-4" aria-hidden />
+            </Button>
+          ) : (
+            <Button type="submit" variant="outline" size="sm" className="shrink-0">
+              Search
+            </Button>
+          )}
+        </form>
+      </header>
 
       {listError ? (
         <Alert variant="destructive" role="alert">
@@ -187,46 +197,23 @@ export default function UsersPage() {
         </Alert>
       ) : null}
 
-      <section className="space-y-4" aria-labelledby="users-list-heading">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="users-list-heading" className="text-sm font-medium">
-            Members
-          </h2>
-          {!listLoading && total > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {hasActiveFilter ? (
-                <>
-                  {total} match{total === 1 ? "" : "es"}
-                  {totalPages > 1
-                    ? ` · showing ${showingFrom}–${showingTo}`
-                    : null}
-                </>
-              ) : (
-                <>
-                  {total} member{total === 1 ? "" : "s"}
-                  {totalPages > 1
-                    ? ` · ${showingFrom}–${showingTo} on this page`
-                    : null}
-                </>
-              )}
-            </p>
-          ) : null}
-        </div>
-
-        {listLoading ? (
-          <UserListSkeleton rows={5} />
-        ) : (
-          <UserList users={users} hasActiveFilter={hasActiveFilter} />
-        )}
-      </section>
+      {listLoading ? (
+        <UserListSkeleton rows={5} />
+      ) : (
+        <UserList
+          users={users}
+          currentUserId={user.id}
+          hasActiveFilter={hasActiveFilter}
+        />
+      )}
 
       {totalPages > 1 ? (
         <nav
-          className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4"
+          className="flex items-center justify-between gap-4 pt-2"
           aria-label="Users pagination"
         >
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             className="gap-1"
             disabled={page <= 1 || listLoading}
@@ -236,10 +223,10 @@ export default function UsersPage() {
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {page} / {totalPages}
           </span>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             className="gap-1"
             disabled={page >= totalPages || listLoading}

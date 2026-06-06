@@ -5,7 +5,9 @@ import {
   ArrowRight,
   Building2,
   FileUp,
+  MessageSquare,
   Search,
+  Shield,
   Users,
 } from "lucide-react";
 
@@ -64,8 +66,15 @@ function getQuickLinks(
       href: "/users",
       title: "Users",
       description:
-        "Browse members and run semantic search over their imported conversations.",
+        "Browse members and choose query (one-shot) or chat (persistent thread) for each member's context.",
       icon: Users,
+    },
+    {
+      href: "/chats",
+      title: "Chats",
+      description:
+        "Continue ongoing conversations grounded in imported Claude history.",
+      icon: MessageSquare,
     },
     {
       href: "/imports",
@@ -115,8 +124,21 @@ export function HomeDashboard() {
               {isSuperAdmin
                 ? "Manage organizations and help teams get their Claude history searchable."
                 : hasOrganization
-                  ? "Pick a member to query imported conversations, or upload new exports."
+                  ? "Pick a member to query or chat against imported conversations, or upload new exports."
                   : "Complete workspace setup to start importing and searching chat history."}
+            </p>
+            <p className="flex max-w-xl items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+              <Shield
+                className="mt-0.5 size-4 shrink-0 text-brand"
+                aria-hidden
+              />
+              <span>
+                <span className="font-medium text-foreground">
+                  We value your privacy.
+                </span>{" "}
+                Your imported conversations stay in your workspace—we never
+                sell your data or share it with advertisers.
+              </span>
             </p>
           </div>
           <Button className="h-10 gap-1.5" render={<Link href={primaryHref} />}>
@@ -175,24 +197,42 @@ export function HomeDashboard() {
         </section>
 
         {hasOrganization && !isSuperAdmin ? (
-          <Card className="ring-1 ring-foreground/10">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Search className="size-4 text-brand" aria-hidden />
-                <CardTitle className="text-base">Semantic search</CardTitle>
-              </div>
-              <CardDescription className="leading-relaxed">
-                Select a user from the directory, then ask questions in natural
-                language. Results include source excerpts from their imported
-                threads.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="font-mono text-xs text-muted-foreground">
-                /users → member → query
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className="ring-1 ring-foreground/10">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Search className="size-4 text-brand" aria-hidden />
+                  <CardTitle className="text-base">Query</CardTitle>
+                </div>
+                <CardDescription className="leading-relaxed">
+                  One-shot answers from a member&apos;s imported history. Pick a
+                  user, ask a question, review sources.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="font-mono text-xs text-muted-foreground">
+                  /users → member → query
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="ring-1 ring-foreground/10">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="size-4 text-brand" aria-hidden />
+                  <CardTitle className="text-base">Chat</CardTitle>
+                </div>
+                <CardDescription className="leading-relaxed">
+                  Persistent threads with optional conversation memory. Context
+                  is fixed when you start a chat.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="font-mono text-xs text-muted-foreground">
+                  /users → member → chat · /chats
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         ) : null}
       </div>
     </AppShell>

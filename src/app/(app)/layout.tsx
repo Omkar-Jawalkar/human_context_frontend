@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { useAuth } from "@/contexts/auth-context";
 
-const ORG_REQUIRED_PATHS = ["/imports", "/users"];
+const ORG_REQUIRED_PATHS = ["/imports", "/users", "/chats"];
 const SUPER_ADMIN_ONLY_PATHS = ["/organizations"];
 
 function requiresOrganization(pathname: string): boolean {

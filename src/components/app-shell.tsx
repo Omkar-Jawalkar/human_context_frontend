@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const tenantNavItems = [
   { href: "/users", label: "Users" },
+  { href: "/chats", label: "Chats" },
   { href: "/imports", label: "Imports" },
 ];
 
@@ -24,7 +25,15 @@ function isNavActive(pathname: string, href: string): boolean {
     return true;
   }
 
+  if (href === "/chats" && pathname.startsWith("/chats")) {
+    return true;
+  }
+
   return false;
+}
+
+function isChatRoute(pathname: string): boolean {
+  return pathname === "/chats" || pathname.startsWith("/chats/");
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -32,6 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const hasOrganization = Boolean(user?.organization_id);
   const isSuperAdmin = Boolean(user?.super_admin);
+  const chatRoute = isChatRoute(pathname);
 
   const navItems = isSuperAdmin
     ? adminNavItems
@@ -39,9 +49,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ? tenantNavItems
       : [];
 
+  if (chatRoute) {
+    return <div className="h-dvh overflow-hidden">{children}</div>;
+  }
+
   return (
-    <div className="min-h-full bg-background">
-      <header className="border-b">
+    <div className="flex min-h-full flex-col bg-background">
+      <header className="shrink-0 border-b">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link
@@ -81,7 +95,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ) : null}
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-8">
+        {children}
+      </main>
     </div>
   );
 }

@@ -1,5 +1,21 @@
 import type { ApiErrorBody, ValidationErrorItem } from "@/lib/types/api";
 
+export const ORG_ACCESS_ERROR_MESSAGE =
+  "You can only use context from your org";
+
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = "Something went wrong. Please try again.",
+): string {
+  if (error instanceof ApiError) {
+    if (error.status === 403) {
+      return ORG_ACCESS_ERROR_MESSAGE;
+    }
+    return error.message;
+  }
+  return fallback;
+}
+
 export class ApiError extends Error {
   status: number;
   code?: string;

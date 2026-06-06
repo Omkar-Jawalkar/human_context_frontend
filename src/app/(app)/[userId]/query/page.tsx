@@ -8,10 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 
-import { ApiError } from "@/lib/api/client";
-import { listOrganizations } from "@/lib/api/organizations";
+import { NoImportsCta } from "@/components/chat/no-imports-cta";
 import { askQuery } from "@/lib/api/query";
-import { listUsers } from "@/lib/api/users";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { hasNoImportsMessage } from "@/lib/context/no-imports";
+import { resolveOrgUser } from "@/hooks/use-org-users";
+import { listOrganizations } from "@/lib/api/organizations";
 import { QuerySources } from "@/components/query-sources";
 import { useRequireAuth } from "@/contexts/auth-context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -36,41 +38,6 @@ type QueryFormValues = z.infer<typeof querySchema>;
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-async function resolveTargetUser(
-  token: string,
-  userId: string,
-  currentUser: UserResponse,
-): Promise<UserResponse | null> {
-  if (userId === currentUser.id) {
-    return currentUser;
-  }
-
-  if (!currentUser.organization_id) {
-    return null;
-  }
-
-  let page = 1;
-
-  while (true) {
-    const response = await listUsers(token, {
-      organization_id: currentUser.organization_id,
-      page,
-      page_size: 100,
-    });
-
-    const match = response.items.find((member) => member.id === userId);
-    if (match) {
-      return match;
-    }
-
-    if (page >= response.total_pages) {
-      return null;
-    }
-
-    page += 1;
-  }
-}
 
 export default function UserQueryPage() {
   const router = useRouter();
@@ -117,7 +84,7 @@ export default function UserQueryPage() {
       setResolveError(null);
 
       try {
-        const resolved = await resolveTargetUser(token, userId, user);
+        const resolved = await resolveOrgUser(token, userId, user);
 
         if (cancelled) {
           return;
@@ -145,13 +112,7 @@ export default function UserQueryPage() {
         }
       } catch (error) {
         if (!cancelled) {
-          const message =
-            error instanceof ApiError && error.status === 403
-              ? "Unable to load user. Contact your admin."
-              : error instanceof ApiError
-                ? error.message
-                : "Failed to load user.";
-          setResolveError(message);
+          setResolveError(getApiErrorMessage(error, "Failed to load user."));
         }
       } finally {
         if (!cancelled) {
@@ -182,10 +143,7 @@ export default function UserQueryPage() {
       });
       setResult(response);
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "Unable to run query. Please try again.";
+      const message = getApiErrorMessage(error, "Unable to run query. Please try again.");
       setErrorMessage(message);
       toast.error(message);
     }
@@ -207,6 +165,8 @@ export default function UserQueryPage() {
     return null;
   }
 
+  const chatHref = `/chats/new?contextUserId=${targetUser.id}`;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -216,12 +176,20 @@ export default function UserQueryPage() {
             Ask natural-language questions over imported Claude conversations.
           </p>
         </div>
-        <Link
-          href="/users"
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-        >
-          Change user
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={chatHref}
+            className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
+          >
+            Start chat instead
+          </Link>
+          <Link
+            href="/users"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          >
+            Change user
+          </Link>
+        </div>
       </div>
 
       <Card>
@@ -274,10 +242,13 @@ export default function UserQueryPage() {
             <CardHeader>
               <CardTitle>Answer</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="whitespace-pre-wrap text-sm leading-relaxed">
                 {result.answer}
               </p>
+              {hasNoImportsMessage(result.answer) && targetUser.id === user.id ? (
+                <NoImportsCta />
+              ) : null}
             </CardContent>
           </Card>
 

@@ -4,7 +4,6 @@ import type { ImportJobResponse } from "@/lib/types/api";
 export type CreateImportInput = {
   file: File;
   userId: string;
-  accountId?: string;
 };
 
 export function createImport(
@@ -14,10 +13,6 @@ export function createImport(
   const formData = new FormData();
   formData.append("file", input.file);
   formData.append("user_id", input.userId);
-
-  if (input.accountId) {
-    formData.append("account_id", input.accountId);
-  }
 
   return apiFetch<ImportJobResponse>("/imports", {
     method: "POST",
