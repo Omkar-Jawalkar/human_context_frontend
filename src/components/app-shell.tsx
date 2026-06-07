@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { LogoWordmark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/auth-context";
@@ -58,11 +59,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="shrink-0 border-b">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="font-heading text-base font-bold tracking-tight"
-            >
-              Human Context
+            <Link href="/" className="transition-opacity hover:opacity-80">
+              <LogoWordmark />
             </Link>
             {navItems.length > 0 ? (
               <nav className="flex items-center gap-1">
