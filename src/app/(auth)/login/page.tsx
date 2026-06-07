@@ -29,6 +29,11 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+const DEMO_CREDENTIALS: LoginFormValues = {
+  email: "spiderman@marvel.com",
+  password: "12345678",
+};
+
 export default function LoginPage() {
   const { login } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -36,6 +41,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,6 +64,12 @@ export default function LoginPage() {
       setErrorMessage(message);
     }
   });
+
+  const fillDemoCredentials = () => {
+    setErrorMessage(null);
+    setValue("email", DEMO_CREDENTIALS.email, { shouldValidate: true });
+    setValue("password", DEMO_CREDENTIALS.password, { shouldValidate: true });
+  };
 
   return (
     <Card className="border-l-2 border-l-brand shadow-sm ring-foreground/8">
@@ -142,6 +154,15 @@ export default function LoginPage() {
             ) : (
               "Sign in"
             )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full"
+            disabled={isSubmitting}
+            onClick={fillDemoCredentials}
+          >
+            Try a demo account
           </Button>
           <Separator />
           <p className="text-center text-sm text-muted-foreground">
