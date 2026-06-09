@@ -71,7 +71,7 @@ export default function RegisterPage() {
         </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {errorMessage ? (
             <Alert variant="destructive">
               <AlertDescription>{errorMessage}</AlertDescription>
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             ) : null}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 border-t-0 bg-transparent p-4 pt-0">
+        <CardFooter className="flex flex-col gap-4 border-t-0 bg-transparent px-4 pt-6 pb-4">
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Creating account…" : "Create account"}
           </Button>
