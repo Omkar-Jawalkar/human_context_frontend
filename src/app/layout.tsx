@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Ubuntu, Ubuntu_Mono } from "next/font/google";
 
 import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import { rootMetadata } from "@/lib/seo/metadata";
 
 import "./globals.css";
 
@@ -20,13 +21,15 @@ const ubuntuMono = Ubuntu_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Human Context",
-  description: "Query your Claude chat history with semantic search",
-  icons: {
-    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/logo.svg", type: "image/svg+xml" }],
-  },
+export const metadata: Metadata = rootMetadata;
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf9f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#141414" },
+  ],
 };
 
 export default function RootLayout({

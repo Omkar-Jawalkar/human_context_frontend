@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 
 import { LogoWordmark } from "@/components/brand/logo";
+import { GitHubLink } from "@/components/brand/github-link";
+import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,9 +79,14 @@ export function HomeLanding() {
             <LogoWordmark />
           </Link>
           <nav
-            className="flex items-center gap-2 sm:gap-3"
-            aria-label="Account"
+            className="flex items-center gap-1 sm:gap-2"
+            aria-label="Site"
           >
+            <GitHubLink
+              showLabel={false}
+              label="View on GitHub"
+              className="size-9 justify-center px-2 sm:size-auto sm:px-3"
+            />
             <Button variant="ghost" size="sm" render={<Link href="/login" />}>
               Sign in
             </Button>
@@ -346,14 +353,7 @@ export function HomeLanding() {
         </section>
       </main>
 
-      <footer className="mt-auto border-t border-border">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-          <LogoWordmark logoClassName="size-6" />
-          <p className="text-xs text-muted-foreground">
-            Semantic search over imported AI chat conversations.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
