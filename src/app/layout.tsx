@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Ubuntu, Ubuntu_Mono } from "next/font/google";
 
 import { AuthProvider } from "@/contexts/auth-context";
+import { MicrosoftClarity } from "@/components/analytics/microsoft-clarity";
 import { Toaster } from "@/components/ui/sonner";
 import { rootMetadata } from "@/lib/seo/metadata";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
       className={`${ubuntu.variable} ${ubuntuMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <MicrosoftClarity />
         <AuthProvider>
           {children}
           <Toaster richColors closeButton />
