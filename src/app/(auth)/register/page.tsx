@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
 import { useAuth } from "@/contexts/auth-context";
+import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,6 +73,7 @@ export default function RegisterPage() {
       </CardHeader>
       <form onSubmit={onSubmit}>
         <CardContent className="space-y-6">
+          <OAuthButtons disabled={isSubmitting} />
           {errorMessage ? (
             <Alert variant="destructive">
               <AlertDescription>{errorMessage}</AlertDescription>

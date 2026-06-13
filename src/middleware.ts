@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { TOKEN_COOKIE_NAME } from "@/lib/auth/token";
 
-const PUBLIC_PATHS = ["/", "/login", "/register"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/auth/callback"];
 
 const AUTH_ENTRY_PATHS = ["/login", "/register"];
 

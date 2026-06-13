@@ -27,3 +27,15 @@ export function login(input: LoginInput): Promise<AuthTokenResponse> {
     skipAuth: true,
   });
 }
+
+export function exchangeOAuthToken(
+  provider: "google" | "github",
+  code: string,
+  redirectUri: string,
+): Promise<AuthTokenResponse> {
+  return apiFetch<AuthTokenResponse>(`/auth/${provider}/token`, {
+    method: "POST",
+    body: { code, redirect_uri: redirectUri },
+    skipAuth: true,
+  });
+}

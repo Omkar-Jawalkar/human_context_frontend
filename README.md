@@ -22,6 +22,10 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_API_URL` | FastAPI origin (default `http://localhost:8000`) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth client ID (optional; omit to hide Google sign-in) |
+| `NEXT_PUBLIC_GITHUB_CLIENT_ID` | GitHub OAuth client ID for this environment (optional; omit to hide GitHub sign-in) |
+
+OAuth client secrets belong on the backend only. Redirect URIs must match exactly, e.g. `http://localhost:3000/auth/callback/google` and `http://localhost:3000/auth/callback/github`.
 
 ## Project structure
 

@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { ApiError } from "@/lib/api/client";
 import { useAuth } from "@/contexts/auth-context";
+import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -83,6 +84,7 @@ export default function LoginPage() {
       </CardHeader>
       <form onSubmit={onSubmit} noValidate>
         <CardContent className="space-y-6">
+          <OAuthButtons disabled={isSubmitting} />
           {errorMessage ? (
             <Alert variant="destructive" role="alert">
               <AlertDescription>{errorMessage}</AlertDescription>

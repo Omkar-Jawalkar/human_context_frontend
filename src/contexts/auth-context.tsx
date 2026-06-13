@@ -27,6 +27,7 @@ type AuthContextValue = {
   isLoading: boolean;
   login: (input: LoginInput) => Promise<UserResponse>;
   register: (input: RegisterInput) => Promise<UserResponse>;
+  loginWithToken: (accessToken: string) => Promise<UserResponse>;
   logout: () => void;
   refreshUser: () => Promise<UserResponse | null>;
 };
@@ -89,15 +90,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return profile;
   }, []);
 
-  const login = useCallback(
-    async (input: LoginInput) => {
-      const response = await loginRequest(input);
-      const profile = await authenticate(response.access_token);
+  const loginWithToken = useCallback(
+    async (accessToken: string) => {
+      const profile = await authenticate(accessToken);
       toast.success("Signed in successfully");
-      router.push(getPostAuthPath(profile));
+      router.replace(getPostAuthPath(profile));
       return profile;
     },
     [authenticate, router],
+  );
+
+  const login = useCallback(
+    async (input: LoginInput) => {
+      const response = await loginRequest(input);
+      return loginWithToken(response.access_token);
+    },
+    [loginWithToken],
   );
 
   const register = useCallback(
@@ -125,10 +133,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       login,
       register,
+      loginWithToken,
       logout,
       refreshUser,
     }),
-    [user, token, isLoading, login, register, logout, refreshUser],
+    [user, token, isLoading, login, register, loginWithToken, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
